@@ -1,13 +1,15 @@
+// index.js 
 
-const app = require('./src/app');
-const connectDB = require('./src/config/db')
-const dotenv = require('dotenv');
+import dotenv from 'dotenv';
+import connectDB from './src/config/db.js';
+import app from './src/app.js';
 
-dotenv.config();
+dotenv.config(); // loads .env variables
+
+connectDB(); // connecting to mongodb
+
 const PORT = process.env.PORT || 5000;
 
-connectDB(); // connection of mongodb data base
-
 app.listen(PORT , () => {
-    console.log(`Server is Running on http://localhost:${PORT}`);
-})
+    console.log(`✅ Server running on http://localhost:${PORT}`);
+});

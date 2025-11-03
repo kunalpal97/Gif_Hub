@@ -1,11 +1,11 @@
 
-const express = require('express');
-const cors = require('cors');
+import express from 'express';
+import cors from 'cors';    
+import bodyParser from 'body-parser';   
 
-const bodyParser = require('body-parser');
-
-const gifRoutes = require("./routes/gifRoutes");
-const userRoutes = require("./routes/userRoutes");
+import gifRoutes from "./routes/gifRoutes.js"; 
+import userRoutes from "./routes/userRoutes.js";
+import favoriteRoutes from "./routes/favoriteRoutes.js";   
 
 const app = express();
 
@@ -19,8 +19,10 @@ app.get('/' , (req , res) => {
 
 app.use("/api/gifs" , gifRoutes);
 app.use("/api/users" , userRoutes);
+app.use("/api/favorites" , favoriteRoutes);
 
-module.exports = app;
+
+export default app;
 
 
 

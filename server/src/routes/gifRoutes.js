@@ -1,10 +1,12 @@
 
-const express = require("express");
+import express from 'express';
 const router = express.Router();
 
+import { fetchTrending , fetchBySearch } from "../controllers/gifController.js";
 
-router.get("/" , (req , res) => {
-    res.send("GIF Routes working ✅");
-})
 
-module.exports = router;
+router.get('/trending' , fetchTrending);
+router.get('/search' , fetchBySearch);
+
+
+export default router;
