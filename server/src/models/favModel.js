@@ -13,7 +13,7 @@ const favoriteSchema = new mongoose.Schema({
         required : true,
     },
     gifUrl : {
-        type : true,
+        type : String,
         required : true,
     },
     title : String,
