@@ -2,7 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
-/* small global styles you can extend */
-html, body, #root {
-  height: 100%;
+/* smooth theme transition */
+html { transition: background-color 0.2s, color 0.2s; }
+
+/* container */
+.container-custom {
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
 }
+
+/* small utility to center content vertically */
+.center-viewport { min-height: calc(100vh - 80px); } /* minus navbar/footer */

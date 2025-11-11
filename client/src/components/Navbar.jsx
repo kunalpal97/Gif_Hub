@@ -1,54 +1,39 @@
-import React from "react";
-import { Link, NavLink } from "react-router-dom";
+import React, { useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import DarkToggle from "./DarkToggle";
+import { AuthContext } from "../context/AuthContext";
 
-const Navbar = () => {
+export default function Navbar() {
+  const { user, logout } = useContext(AuthContext);
+  const nav = useNavigate();
+
   return (
-    <nav className="bg-white shadow-md sticky top-0 z-50">
-      <div className="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
-        <Link
-          to="/"
-          className="text-2xl font-bold text-blue-600 hover:text-blue-800 transition"
-        >
-          GIF_HUB
-        </Link>
+    <header className="bg-white dark:bg-slate-900 border-b dark:border-slate-700">
+      <div className="container-custom px-4 py-4 flex items-center justify-between">
+        <div className="flex items-center gap-6">
+          <Link to="/" className="text-xl font-bold">GIF_HUB</Link>
+          <nav className="hidden sm:flex gap-4">
+            <Link to="/" className="hover:underline">Home</Link>
+            <Link to="/trending" className="hover:underline">Trending</Link>
+            <Link to="/favorites" className="hover:underline">Favorites</Link>
+          </nav>
+        </div>
 
-        <div className="space-x-6">
-          <NavLink
-            to="/"
-            className={({ isActive }) =>
-              isActive ? "text-blue-600 font-semibold" : "hover:text-blue-600"
-            }
-          >
-            Home
-          </NavLink>
-          <NavLink
-            to="/trending"
-            className={({ isActive }) =>
-              isActive ? "text-blue-600 font-semibold" : "hover:text-blue-600"
-            }
-          >
-            Trending
-          </NavLink>
-          <NavLink
-            to="/favorites"
-            className={({ isActive }) =>
-              isActive ? "text-blue-600 font-semibold" : "hover:text-blue-600"
-            }
-          >
-            Favorites
-          </NavLink>
-          <NavLink
-            to="/login"
-            className={({ isActive }) =>
-              isActive ? "text-blue-600 font-semibold" : "hover:text-blue-600"
-            }
-          >
-            Login
-          </NavLink>
+        <div className="flex items-center gap-3">
+          <DarkToggle />
+          {!user ? (
+            <>
+              <button onClick={() => nav("/login")} className="px-3 py-1 border rounded">Login</button>
+              <button onClick={() => nav("/signup")} className="px-3 py-1 rounded bg-cyan-400">Signup</button>
+            </>
+          ) : (
+            <>
+              <div className="text-sm">{user.name}</div>
+              <button onClick={logout} className="px-3 py-1 border rounded">Logout</button>
+            </>
+          )}
         </div>
       </div>
-    </nav>
+    </header>
   );
-};
-
-export default Navbar;
+}
