@@ -2,15 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
-/* smooth theme transition */
-html { transition: background-color 0.2s, color 0.2s; }
-
-/* container */
-.container-custom {
-  max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
+:root {
+  --bg-1: #0f172a;
+  --bg-2: #111827;
+  --accent: #06b6d4;
 }
 
-/* small utility to center content vertically */
-.center-viewport { min-height: calc(100vh - 80px); } /* minus navbar/footer */
+html { transition: background-color .2s, color .2s; }
+body { background: linear-gradient(180deg, var(--bg-1), var(--bg-2)); color: #e6eef6; }
+
+/* container */
+.container-custom { max-width: 1200px; margin-left: auto; margin-right: auto; }

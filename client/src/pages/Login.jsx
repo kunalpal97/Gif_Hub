@@ -1,47 +1,40 @@
-import React, { useContext, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import api from "../api/axiosInstance";
+import React, { useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+import api from "../api/axiosInstance";
 
-export default function Login() {
+export default function Login(){
   const { login } = useContext(AuthContext);
   const nav = useNavigate();
-  const [email, setEmail] = useState("");
-  const [password,setPassword] = useState("");
-  const [loading,setLoading] = useState(false);
-  const [err,setErr] = useState(null);
+  const [email,setEmail]=useState("");
+  const [password,setPassword]=useState("");
 
-  const submit = async (e) => {
+  const submit = async e => {
     e.preventDefault();
-    setErr(null);
-    setLoading(true);
     try {
-      const res = await api.post("/auth/login", { email, password });
-      if (res.data?.token) {
-        login(res.data.token);
-        nav("/", { replace: true });
-      } else {
-        setErr("Invalid response from server");
-      }
-    } catch (error) {
-      setErr(error?.response?.data?.message || "Login failed");
-    } finally { setLoading(false); }
+      // call backend auth route
+      const res = await api.post('/users/login', { email, password });
+      const token = res.data.token || res.data;
+      login(token);
+      toast.success("Logged in");
+      nav('/');
+    } catch (err) {
+      console.error(err);
+      toast.error("Login failed");
+    }
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <div className="container-custom px-4 py-8 center-viewport flex items-center justify-center">
-        <div className="w-full max-w-md bg-white dark:bg-slate-800 rounded-2xl p-8 shadow">
-          <h2 className="text-2xl font-semibold text-center mb-4">Welcome back</h2>
-          {err && <div className="text-red-500 mb-3">{err}</div>}
-          <form onSubmit={submit} className="space-y-4">
-            <input value={email} onChange={(e)=>setEmail(e.target.value)} type="email" required placeholder="Email" className="w-full p-3 border rounded" />
-            <input value={password} onChange={(e)=>setPassword(e.target.value)} type="password" required placeholder="Password" className="w-full p-3 border rounded" />
-            <button disabled={loading} className="w-full p-3 rounded bg-cyan-400">{loading ? "Logging..." : "Login"}</button>
-          </form>
-          <p className="text-center mt-4 text-sm">Don't have an account? <Link to="/signup" className="text-cyan-400">Signup</Link></p>
-        </div>
-      </div>
+    <div className="min-h-screen flex items-center justify-center px-4">
+      <form onSubmit={submit} className="max-w-md w-full bg-slate-800/60 p-6 rounded-lg shadow">
+        <h2 className="text-xl font-semibold mb-4 text-cyan-300 text-center">Welcome back</h2>
+        <input autoComplete="email" placeholder="Email" value={email} onChange={e=>setEmail(e.target.value)}
+               className="w-full p-3 rounded mb-3 bg-slate-700 border border-slate-600" />
+        <input autoComplete="current-password" placeholder="Password" type="password" value={password} onChange={e=>setPassword(e.target.value)}
+               className="w-full p-3 rounded mb-4 bg-slate-700 border border-slate-600" />
+        <button className="w-full py-3 bg-cyan-400 text-slate-900 font-semibold rounded">Login</button>
+      </form>
     </div>
   );
 }

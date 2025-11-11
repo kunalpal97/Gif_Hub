@@ -11,8 +11,8 @@ export const fetchTrendingGifs = async () => {
       media_filter: "tinygif",
     };
 
-    console.log("🔥 Final Tenor API URL:", "https://tenor.googleapis.com/v2/featured");
-    console.log("📦 Params Sent:", params);
+    // console.log("🔥 Final Tenor API URL:", "https://tenor.googleapis.com/v2/featured");
+    // console.log("📦 Params Sent:", params);
 
     const response = await axios.get("https://tenor.googleapis.com/v2/featured", { params });
     return response.data;
@@ -33,8 +33,8 @@ export const searchGifs = async (query) => {
       media_filter: "tinygif",
       locale: "en_US",
     };
-    console.log("🔍 Final Tenor API URL:", "https://tenor.googleapis.com/v2/search");
-    console.log("🧾 Params Sent:", params);
+    // console.log("🔍 Final Tenor API URL:", "https://tenor.googleapis.com/v2/search");
+    // console.log("🧾 Params Sent:", params);
 
     const response = await axios.get("https://tenor.googleapis.com/v2/search", { params });
     return response.data;

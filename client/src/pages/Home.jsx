@@ -1,70 +1,79 @@
 import React, { useEffect, useState } from "react";
-import { fetchTrending } from "../api/gifService";
+import { searchGifs } from "../api/gifService";
 import GifCard from "../components/GifCard/GifCard";
 import Loader from "../components/Loader";
+import toast from "react-hot-toast";
 
-export default function Home() {
-  const LIMIT = 12;
-  const [page, setPage] = useState(0);
+export default function Home(){
+  const [query, setQuery] = useState("");
   const [gifs, setGifs] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [total, setTotal] = useState(null);
-  const [error, setError] = useState(null);
+  const [page, setPage] = useState(0);
+  const LIMIT = 12;
 
-  const load = async (p = 0) => {
+  const doSearch = async (q, p = 0) => {
+    if (!q) { setGifs([]); return; }
     setLoading(true);
-    setError(null);
     try {
-      const pos = p * LIMIT;
-      const res = await fetchTrending(LIMIT, pos);
-      const data = res.data;
-      // adapt depending on backend shape:
-      // expect { success: true, gifs: [...], total: number }
-      const list = data.gifs || data.results || data || [];
-      setGifs(list);
-      if (data.total) setTotal(data.total);
+      const res = await searchGifs(q, LIMIT, p * LIMIT);
+      const data = res?.data || res;
+      // data may be { success: true, data: { results: [...] } } like Tenor OR array
+      let list = [];
+      if (Array.isArray(data)) list = data;
+      else if (data.data?.results) list = data.data.results;
+      else if (Array.isArray(data.data)) list = data.data;
+      else if (Array.isArray(data.results)) list = data.results;
+      // normalize to { id, url, title }
+      const normalize = list.map(it => ({
+        id: it.id || it._id,
+        url: it.media_formats?.tinygif?.url || it.url || (it.images?.original?.url),
+        title: it.title || it.content_description || ""
+      })).filter(s => s.url);
+      setGifs(normalize);
+      if (!normalize.length) toast("No results found", { icon: "🔎" });
     } catch (err) {
       console.error(err);
-      setError("Failed to load trending gifs");
-    } finally {
-      setLoading(false);
-    }
+      toast.error("Search failed");
+    } finally { setLoading(false); }
   };
 
-  useEffect(() => { load(page); }, [page]);
-
-  const prev = () => setPage((p) => Math.max(0, p - 1));
-  const next = () => {
-    if (total && (page + 1) * LIMIT >= total) return;
-    setPage((p) => p + 1);
-  };
+  useEffect(() => {
+    // optionally fetch default gifs for home (e.g., 'funny')
+    doSearch("funny", 0);
+  }, []);
 
   return (
-    <div className="container-custom px-4 py-8">
-      <h2 className="text-2xl font-semibold mb-6 text-center">Trending GIFs</h2>
+    <div className="min-h-screen px-6 py-10">
+      <div className="container-custom mx-auto text-center">
+        <h1 className="text-4xl font-bold text-cyan-300 mb-4">Find GIFs</h1>
 
-      {loading ? <Loader /> : error ? <div className="text-red-500 text-center">{error}</div> : (
-        <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {gifs.map((g) => (
-              <GifCard key={g.id || g.gifId || g._id} gif={{ id: g.id || g.gifId || g._id, url: g.gifUrl || g.url, title: g.title }} />
-            ))}
+        <div className="max-w-2xl mx-auto mb-6">
+          <div className="flex gap-2">
+            <input value={query} onChange={e => setQuery(e.target.value)}
+                   onKeyDown={e => { if(e.key==='Enter') { doSearch(query); setPage(0); } }}
+                   placeholder="Search gifs e.g. cats, cricket, reaction..."
+                   className="w-full p-3 rounded-l-lg bg-slate-800 border border-slate-700 text-white" />
+            <button onClick={() => { setPage(0); doSearch(query, 0); }}
+                    className="px-4 bg-cyan-400 text-slate-900 rounded-r-lg font-semibold">Search</button>
           </div>
-          <div className="flex items-center justify-between mt-8">
-            <button onClick={prev} disabled={page === 0} className="px-4 py-2 rounded border disabled:opacity-50">
-              Prev
-            </button>
+        </div>
 
-            <div className="text-sm text-gray-600 dark:text-gray-300">
-              Page {page + 1} {total ? `• Showing ${(page*LIMIT)+gifs.length} of ${total}` : ""}
+        {loading ? <Loader /> : (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+              {gifs.map(g => <GifCard key={g.id||g.url} gif={g} />)}
             </div>
 
-            <button onClick={next} className="px-4 py-2 rounded border disabled:opacity-50">
-              Next
-            </button>
-          </div>
-        </>
-      )}
+            <div className="flex items-center justify-center gap-4 mt-8">
+              <button onClick={() => { setPage(p => Math.max(0, p-1)); doSearch(query, Math.max(0, page-1)); }}
+                      className="px-4 py-2 bg-slate-700 rounded disabled:opacity-40">Prev</button>
+              <div className="text-slate-300">Page {page+1}</div>
+              <button onClick={() => { setPage(p => p+1); doSearch(query, page+1); }}
+                      className="px-4 py-2 bg-slate-700 rounded">Next</button>
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 }
