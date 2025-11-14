@@ -1,10 +1,13 @@
+// src/components/Footer.jsx
 import React from "react";
 
 export default function Footer() {
   return (
-    <footer className="bg-white dark:bg-slate-900 border-t dark:border-slate-700">
-      <div className="container-custom px-4 py-6 text-center text-sm text-gray-600 dark:text-gray-300">
-        © {new Date().getFullYear()} GIF_HUB. All rights reserved.
+    <footer className="mt-12 border-t border-slate-200 dark:border-slate-700">
+      <div className="container-custom px-6 py-6 text-center">
+        <div className="text-sm text-slate-700 dark:text-slate-300">
+          © {new Date().getFullYear()} GIF_HUB — Built with ❤️ · Designed responsively
+        </div>
       </div>
     </footer>
   );
