@@ -1,18 +1,23 @@
+// src/config/db.js
 import mongoose from "mongoose";
+import dotenv from "dotenv";
+dotenv.config();
 
-const connectDB = async () => {
+const MONGO_URI = process.env.MONGO_URI;
 
-    try{
-        const conn = await mongoose.connect(process.env.MONGO_URI , {
-            // we can write modern mongoose auto handler most
-        });
-
-        console.log(`✅ MongoDB connected successfully: ${conn.connection.host}`);
-    } catch(err){
-        console.error(`❌ MongoDB connection error: ${err.message}`);
-        process.exit(1);
-    }
+if (!MONGO_URI) {
+  console.error("MONGO_URI not set in .env");
+  process.exit(1);
 }
 
+mongoose.set("strictQuery", true);
 
-export default connectDB;
+export default function connectDB() {
+  mongoose
+    .connect(MONGO_URI)
+    .then(() => console.log("✅ MongoDB connected"))
+    .catch((err) => {
+      console.error("MongoDB connection error:", err);
+      process.exit(1);
+    });
+}

@@ -1,36 +1,65 @@
-// src/controllers/gifController.js
-import { fetchTrendingGifs, searchGifs } from "../utils/tenorApi.js";
 
-export const fetchTrending = async (req, res) => {
+// controllers/gifController.js
+import axios from "axios";
+
+export const getTrendingGifs = async (req, res) => {
   try {
-    const data = await fetchTrendingGifs();
-    res.status(200).json({ success: true, data });
+    const limit = req.query.limit || 30;
+
+    const response = await axios.get(
+      "https://tenor.googleapis.com/v2/featured",
+      {
+        params: {
+          key: process.env.TENOR_API_KEY,   // ✔ correct param
+          limit,
+          media_filter: "gif"
+        }
+      }
+    );
+
+    return res.json({
+      success: true,
+      results: response.data.results,
+      next: response.data.next
+    });
+
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
-      message: "failed to fetch trending GIFs",
-      error: error.message,
+      message: "Failed to fetch trending gifs",
+      error: error.message
     });
   }
 };
 
-export const fetchBySearch = async (req, res) => {
+export const searchGifs = async (req, res) => {
   try {
     const { q } = req.query;
-    if (!q) {
-      return res.status(400).json({
-        success: false,
-        message: "Search query missing",
-      });
-    }
+    const limit = req.query.limit || 30;
 
-    const data = await searchGifs(q); // ✅ function available now
-    res.status(200).json({ success: true, data });
+    const response = await axios.get(
+      "https://tenor.googleapis.com/v2/search",
+      {
+        params: {
+          key: process.env.TENOR_API_KEY,
+          q,
+          limit,
+          media_filter: "gif"
+        }
+      }
+    );
+
+    return res.json({
+      success: true,
+      results: response.data.results,
+      next: response.data.next
+    });
+
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
-      message: "Failed to Search GIFs",
-      error: error.message,
+      message: "Failed to fetch search gifs",
+      error: error.message
     });
   }
 };

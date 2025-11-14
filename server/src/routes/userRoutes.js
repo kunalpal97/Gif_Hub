@@ -1,12 +1,13 @@
-
-
-import express from 'express';    
+// src/routes/userRoutes.js
+import express from "express";
+import { signup, login } from "../controllers/userController.js";
 
 const router = express.Router();
 
+// POST /api/users/signup
+router.post("/signup", signup);
 
-router.get("/" , (req , res) => {
-    res.send("User Routes working ✅");
-});
+// POST /api/users/login
+router.post("/login", login);
 
 export default router;

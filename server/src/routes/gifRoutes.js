@@ -1,12 +1,13 @@
+// routes/gifRoutes.js
+import express from "express";
+import { getTrendingGifs, searchGifs } from "../controllers/gifController.js";
 
-import express from 'express';
 const router = express.Router();
 
-import { fetchTrending , fetchBySearch } from "../controllers/gifController.js";
+// GET /api/gifs/trending?page=1&limit=30
+router.get("/trending", getTrendingGifs);
 
-
-router.get('/trending' , fetchTrending);
-router.get('/search' , fetchBySearch);
-
+// GET /api/gifs/search?q=funny&page=1&limit=30
+router.get("/search", searchGifs);
 
 export default router;
