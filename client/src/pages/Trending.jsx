@@ -1,53 +1,65 @@
 // src/pages/Trending.jsx
-import React, { useEffect, useState } from "react";
-import { fetchTrending } from "../api/gifService";
-import GifCard from "../components/GifCard/GifCard";
-import Loader from "../components/Loader";
+import React from "react";
+import { useQuery } from "@tanstack/react-query";
+import api from "../services/api";
+import GifCard from "../components/GifCard";
+import Spinner from "../components/Spinner";
+import Footer from "../components/Footer";
 
 export default function Trending() {
-  const [gifs, setGifs] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const LIMIT = 25;
+  const {
+    data,
+    isLoading,
+    isError,
+    refetch
+  } = useQuery({
+    queryKey: ["trending-gifs"],
+    queryFn: async () => {
+      const res = await api.get("/gifs/trending?page=1&limit=30");
+      return res.data.results;
+    },
+  });
 
-  const normalizeList = (list = []) =>
-    list
-      .map((it) => ({
-        id: it.id || it._id || it.gifId || (it.url || it.media_formats?.tinygif?.url),
-        url: it.media_formats?.tinygif?.url || it.url || it.images?.original?.url,
-        title: it.title || it.content_description || "",
-      }))
-      .filter((i) => i.url);
+  if (isLoading) return <Spinner />;
 
-  useEffect(() => {
-    const load = async () => {
-      setLoading(true);
-      try {
-        const res = await fetchTrending(LIMIT, 0);
-        const data = res?.data || res;
-        const list = data?.data?.results || data.results || data?.data || data;
-        const normalized = normalizeList(Array.isArray(list) ? list : []);
-        setGifs(normalized);
-      } catch (err) {
-        console.error("trending error", err);
-        setGifs([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-    load();
-  }, []);
+  if (isError)
+    return (
+      <div className="text-center mt-20 text-red-400">
+        Failed to load trending GIFs
+        <button
+          onClick={refetch}
+          className="ml-3 px-4 py-1 bg-blue-600 text-white rounded-lg"
+        >
+          Retry
+        </button>
+      </div>
+    );
 
   return (
-    <main className="min-h-screen px-6 py-10">
-      <div className="container-custom mx-auto">
-        <h2 className="text-3xl font-bold text-center text-slate-900 dark:text-cyan-300 mb-6">🔥 Trending GIFs</h2>
+    <div className="max-w-7xl mx-auto px-4 py-8">
 
-        {loading ? <Loader /> : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {gifs.map((g) => <GifCard key={g.id || g.url} gif={g} />)}
-          </div>
-        )}
+      {/* Header (Same as Home.jsx) */}
+      <h2 className="text-3xl font-bold text-center mb-8 text-gray-800 dark:text-gray-200">
+        Trending GIFs 🔥
+      </h2>
+
+      {/* GIF Grid (Same spacing + centering style as Home.jsx) */}
+      <div
+        className="
+          grid
+          grid-cols-1
+          sm:grid-cols-2
+          md:grid-cols-3
+          lg:grid-cols-4
+          gap-6
+          place-items-center
+        "
+      >
+        {data?.map((gif) => (
+          <GifCard key={gif.id} gif={gif} />
+        ))}
       </div>
-    </main>
+      <Footer/>
+    </div>
   );
 }

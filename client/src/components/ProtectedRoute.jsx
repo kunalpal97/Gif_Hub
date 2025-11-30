@@ -1,11 +1,22 @@
-import React, { useContext } from "react";
+import React from "react";
 import { Navigate } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext.jsx";
+import useAuth from "../hooks/useAuth";
 
 export default function ProtectedRoute({ children }) {
-  const ctx = useContext(AuthContext);
-  // if ctx undefined -> not wrapped correctly
-  if (!ctx) return <Navigate to="/login" replace />;
-  if (!ctx.user) return <Navigate to="/login" replace />;
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="w-full h-screen flex items-center justify-center text-lg">
+        Checking authentication...
+      </div>
+    );
+  }
+
+  if (!user) {
+    alert("You must login to access this page.");
+    return <Navigate to="/login" replace />;
+  }
+
   return children;
 }
